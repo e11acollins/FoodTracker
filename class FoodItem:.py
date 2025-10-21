@@ -230,6 +230,28 @@ class App_FoodSummary:
         self.exp_soon = exp_soon
         self.others = others
 
+        # Rebuild summary text
+        summary_text = "Expired Foods:\n"
+        for food, expiry, days in expired:
+            summary_text += f"- {food} (Expired {days} days ago)\n"
+
+        summary_text += "\nExpiring Today:\n"
+        for food, expiry in exp_today:
+           summary_text += f"- {food} (Expires today)\n"
+
+        summary_text += "\nExpiring Soon:\n"
+        for food, expiry, days in exp_soon:
+           summary_text += f"- {food} (Expires in {days} days)\n"
+
+        summary_text += "\nOther Foods:\n"
+        for food, expiry, days in others:
+           summary_text += f"- {food} (Expires in {days} days)\n"
+
+        # Update label on the summary window
+        self.summary_label.config(text=summary_text)
+        self.root.update_idletasks()
+
+
     def remove_items(self):
         remove_root = Toplevel(self.root)
         App_RemoveFood(
@@ -301,18 +323,6 @@ class App_RemoveFood:
             if self.refresh_callback:
               self.refresh_callback()
 
-    def remove_selected(self):
-        selection = self.listbox.curselection()
-        if selection:
-            idx = selection[0]
-            item = self.all_items.pop(idx)  # Remove from memory
-            # Remove from database
-            db = FoodDatabase()
-            db.cursor.execute("DELETE FROM foods WHERE food=? AND expiry_date=?", (item[0], item[1]))
-            db.con.commit()
-            db.close()
-            # Update Listbox
-            self.listbox.delete(idx)
 
 # Opens the window
 myroot = Tk()
